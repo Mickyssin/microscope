@@ -1,11 +1,21 @@
-// Import Tinytest from the tinytest Meteor package.
-import { Tinytest } from "meteor/tinytest";
+Tinytest.add("Errors - collection", function(test) {
+  test.equal(Errors.collection.find({}).count(), 0);
+  
+  Errors.throw('A new error!');
+  test.equal(Errors.collection.find({}).count(), 1);
+  
+  Errors.collection.remove({});
+});
 
-// Import and rename a variable exported by errors.js.
-import { name as packageName } from "meteor/tmeasday:errors";
-
-// Write your tests here!
-// Here is an example.
-Tinytest.add('errors - example', function (test) {
-  test.equal(packageName, "errors");
+Tinytest.addAsync("Errors - template", function(test, done) {  
+  Errors.throw('A new error!');
+  test.equal(Errors.collection.find({}).count(), 1);
+  
+  // render the template
+  UI.insert(UI.render(Template.meteorErrors), document.body);
+  
+  Meteor.setTimeout(function() {
+    test.equal(Errors.collection.find({}).count(), 0);
+    done();
+  }, 3500);
 });
